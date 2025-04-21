@@ -48,11 +48,17 @@ class SecureFileSharing:
         if st.button("Login"):
             user_id = self.db_manager.authenticate_user(username, password, otp)
             if user_id:
-                st.session_state['user_id'] = user_id
-                st.session_state['username'] = username
-                st.rerun()
+                st.session_state["login_success"] = True
+                st.session_state["user_id_temp"] = user_id
+                st.session_state["username_temp"] = username
             else:
                 st.error("Invalid Credentials")
+
+        if st.session_state.get("login_success"):
+            st.session_state["user_id"] = st.session_state.pop("user_id_temp")
+            st.session_state["username"] = st.session_state.pop("username_temp")
+            del st.session_state["login_success"]
+            st.experimental_rerun()
 
     def file_sharing_page(self):
         st.subheader("Secure File Sharing")
@@ -120,6 +126,7 @@ class SecureFileSharing:
         if 'user_id' in st.session_state:
             del st.session_state['user_id']
             del st.session_state['username']
+            st.experimental_rerun()
 
     def main(self):
         if 'user_id' not in st.session_state:
@@ -132,7 +139,6 @@ class SecureFileSharing:
             st.sidebar.write(f"Logged in as: {st.session_state['username']}")
             if st.sidebar.button("Logout"):
                 self.logout()
-                st.rerun()
             self.file_sharing_page()
 
 def main():
