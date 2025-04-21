@@ -62,7 +62,7 @@ class SecureFileSharing:
 
     def file_sharing_page(self):
         st.subheader("Secure File Sharing")
-        
+
         # File Upload Section
         uploaded_file = st.file_uploader("Choose a file", type=['txt', 'pdf', 'docx', 'xlsx'], key="file_uploader")
         recipient_username = st.text_input("Recipient Username", key="recipient_username")
@@ -73,7 +73,6 @@ class SecureFileSharing:
                 st.error(f"User {recipient_username} not found")
                 return
 
-            # Use Railway-compatible temp path
             temp_path = os.path.join("/data/temp", uploaded_file.name)
             with open(temp_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
@@ -95,11 +94,12 @@ class SecureFileSharing:
         # Received Files Section
         st.subheader("Received Files")
         received_files = self.db_manager.get_received_files(st.session_state['user_id'])
+
         if received_files:
-            for file_id, filename, sender, encrypted_path, timestamp in received_files:
+            for file_id, filename, sender, encrypted_path, timestamp, file_size, file_type in received_files:
                 col1, col2, col3 = st.columns([3, 2, 1])
                 with col1:
-                    st.write(f"Filename: {filename}")
+                    st.write(f"Filename: {filename} ({file_type or ''}, {file_size or 0} bytes)")
                 with col2:
                     st.write(f"From: {sender}")
                 with col3:
